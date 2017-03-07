@@ -10,7 +10,23 @@ import sys
 import re
 
 ALLOWED_ORGS = (
+	"Ecole polytechnique federale de Lausanne (EPFL)",
 	"ETH Zuerich",
+	"Eidg. Forschungsanstalt fuer Wald, Schnee und Landschaft (WSL)",
+	"Eidgenoessische Materialpruefungs- und Forschungsanstalt (EMPA)",
+	"EAWAG (Eidg. Anstalt fuer Wasserv., Abwasserr. u. Gewaessersch.)",
+	"Fachhochschule Nordwestschweiz",
+	"FHS St. Gallen Hochschule fuer Angewandte Wissenschaften",
+	"Haute Ecole Specialisee de Suisse occidentale (HES-SO)",
+	"Hochschule Luzern",
+	"Paul-Scherrer-Institut (PSI)",
+	"Universita della Svizzera Italiana",
+	"Universitaet Basel",
+	"University of Bern",
+	"Universite de Geneve",
+	"Universite de Lausanne",
+	"Universite de Neuchatel",
+	"University of Zurich",
 )
 
 # Printing functions
@@ -153,8 +169,6 @@ def check_CSR(req):
 
 		if not out_test("Verifying CN in subjectAltNames...", check=(name == alt_names[0])):
 			return None
-
-		out(alt_names, color="OKBLUE")
 
 		return ("Host", " / ".join(alt_names), org)
 
