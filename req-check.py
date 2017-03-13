@@ -6,6 +6,7 @@ Checks validity of CSRs according to Switzerland RA rules for SEE-GRID CA
 from OpenSSL import crypto
 from pyasn1.codec.der import decoder as der_decoder
 from subj_alt_name import SubjectAltName
+from socket import getaddrinfo
 import sys
 import re
 
@@ -103,7 +104,27 @@ def user_name_validate(input):
 	return True
 
 def domain_name_validate(input):
-	return (re.fullmatch(r'[a-zA-Z\d-]{,63}(\.[a-zA-Z\d-]{,63})*', input) != None)
+	try:
+		result = domain_name_ips(input)
+		return (len(result) > 0)
+	except:
+		return False
+
+def altnames_same_validate(input):
+	try:
+		canonical = domain_name_ips(input[0])
+		for name in input[1:]:
+			if canonical != domain_name_ips(name):
+				return False
+		return True
+	except:
+		return False
+
+def domain_name_ips(input):
+	try:
+		return getaddrinfo(input, None)
+	except:
+		return None
 
 def pop_DN_part(components, attr_type):
 	result = []
@@ -161,16 +182,25 @@ def check_CSR(req):
 	else:
 		out("This is a Host CSR")
 		(result, part) = check_part(subj, "CN", (domain_name_validate,))
+		out_test("Verifying domain name resolution...", check=result)
 		if not result:
 			return None
 
 		name = part[0][1]
 		alt_names = get_subj_alt_name(req)
 
-		if not out_test("Verifying CN in subjectAltNames...", check=(name == alt_names[0])):
-			return None
+		if len(alt_names):
+			if not out_test("Verifying CN in subjectAltNames ({})...".format(" / ".join(alt_names)), check=(name in alt_names)):
+				return None
 
-		return ("Host", " / ".join(alt_names), org)
+			if not out_test("Verifying subjectAltNames resolve identically ({})...".format(" / ".join(alt_names)), check=altnames_same_validate(alt_names)):
+				return None
+
+			return ("Host", " / ".join(alt_names), org)
+		else:
+			out("subjectAltNames not specified.", end=' ')
+			out("WARN", color="WARNING")
+			return ("Host", name, org)
 
 # Main
 
