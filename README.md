@@ -4,8 +4,8 @@ Validates CSRs according to SEE-GRID CA rules
 
 ## Required packages
 
-Requirements (in terms of Debian packages): python3, python3-openssl
-Requirements (in terms of Python packages): pyopenssl, pyasn1
+Requirements (in terms of Debian packages): `python3 python3-openssl`  
+Requirements (in terms of Python packages): `pyopenssl pyasn1`
 
 ## Usage
 
